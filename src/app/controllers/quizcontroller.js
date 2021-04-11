@@ -1,32 +1,43 @@
 const express = require('express');
 
 const User = require('../models/user');
+const Discipline = require('../models/discipline');
+const Question = require('../models/question');
 const Quiz = require('../models/quiz');
 
 const router = express.Router();
 
-router.post('/', async (req, res) => {
+router.post('/register', async (req, res) => {
     try {
-        const { items, details, detailsNfce } = req.body.nfce;
-        const { accesskey } = detailsNfce;
+        const { idUser, idDiscipline, questions } = req.body;
 
-        if(await Nfce.findOne({ accesskey, user: req.userId })) {
-            return res.status(400).send({ error: 'NFC-e já existente!' });
+        if(await Quiz.findOne({ idUser, idDiscipline })) {
+            return res.status(400).send({ error: 'Questionário já existente!' });
         }
 
-        const nfce = await Nfce.create({ user: req.userId, ...details, ...detailsNfce });
-        console.log('NFCE: ', nfce)
+        const quiz = await Quiz.create({ idUser, idDiscipline });
 
-        await Promise.all(items.map(async item => {
-            const nfceItem = new Item({ ...item, nfce: nfce._id });
-            await nfceItem.save();
-            nfce.items.push(nfceItem);
+        await Promise.all(questions.map(async question => {
+            const quizQuestion = new Question({ ...question, quiz: quiz._id });
+            await quizQuestion.save();
+            quiz.questions.push(quizQuestion);
         }));
 
-        await nfce.save();
-        return res.status(201).send({ nfce });
+        await quiz.save();
+        return res.status(201).send({ quiz });
     } catch (err) {
-        res.status(400).send({ error: 'Erro ao registrar NFC-e!' })
+        res.status(400).send({ error: 'Erro ao registrar Questionário!' + err })
+    }
+});
+
+router.get('/findAll', async (req, res) => {
+    try {
+        const { idUser } = req.body;
+        const quizzes = await Quiz.find({ idUser }).populate(['idUser', 'idDiscipline', 'questions']);
+
+        return res.send({ quizzes });
+    } catch (err) {
+        res.status(400).send({ error: 'Erro ao consultar Questionário!' })
     }
 });
 

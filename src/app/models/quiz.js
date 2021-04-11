@@ -1,21 +1,20 @@
 const mongoose = require('mongoose')
 
 const quizSchema = mongoose.Schema({
-    discipline: {
+    idDiscipline: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Discipline',
         require: true
     },
-    user: {
+    idUser: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         require: true
     },
-    question: {
+    questions: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Question',
-        require: true
-    },
+        ref: 'Question'
+      }],
     createdAt: {
         type: Date,
         default: Date.now
