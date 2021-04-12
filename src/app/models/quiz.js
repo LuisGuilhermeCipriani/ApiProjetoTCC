@@ -11,9 +11,9 @@ const quizSchema = mongoose.Schema({
         ref: 'User',
         require: true
     },
-    questions: [{
+    question_answer: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Question'
+        ref: 'QuestionAnswer'
       }],
     createdAt: {
         type: Date,
