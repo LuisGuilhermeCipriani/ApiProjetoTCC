@@ -1,26 +1,22 @@
 const mongoose = require('mongoose')
 
 const quizSchema = mongoose.Schema({
-    idDiscipline: {
+    disciplineUser: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Discipline',
+        ref: 'DisciplineUser',
         require: true
     },
-    idUser: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        require: true
-    },
-    question_answer: [{
+    questionAnswer: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'QuestionAnswer'
       }],
+    status: {
+        type: String,
+        default: 'N'
+    },
     createdAt: {
         type: Date,
         default: Date.now
-    },
-    status: {
-        type: String
     }
 })
 

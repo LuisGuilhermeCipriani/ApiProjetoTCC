@@ -2,22 +2,22 @@ const express = require('express');
 
 const Question = require('../models/question');
 const Answer = require('../models/answer');
-const Question_Answer = require('../models/question_answer');
+const QuestionAnswer = require('../models/questionAnswer');
 
 const router = express.Router();
 
 router.post('/register', async (req, res) => {
     try {
-        const { idQuestion, idAnswer } = req.body;
+        const { idQuestion, idAnswer, idDiscipline, idUser } = req.body;
 
-        if(await Question_Answer.findOne({ idQuestion, idAnswer })) {
+        if(await QuestionAnswer.findOne({ idQuestion, idAnswer, idDiscipline, idUser })) {
             return res.status(400).send({ error: 'Pergunta/Resposta já existente!' });
         }
 
-        const question_Answer = await Question_Answer.create({ idQuestion, idAnswer });
+        const questionAnswer = await QuestionAnswer.create({ idQuestion, idAnswer, idDiscipline, idUser });
 
-        await question_Answer.save();
-        return res.status(201).send({ question_Answer });
+        await questionAnswer.save();
+        return res.status(201).send({ questionAnswer });
     } catch (err) {
         res.status(400).send({ error: 'Erro ao registrar pergunta/resposta!' })
     }
@@ -25,12 +25,12 @@ router.post('/register', async (req, res) => {
 
 router.get('/findAll', async (req, res) => {
     try {
-        const question_Answer = await Question_Answer.find();
+        const questionAnswer = await QuestionAnswer.find();
 
-        return res.send({ question_Answer });
+        return res.send({ questionAnswer });
     } catch (err) {
         res.status(400).send({ error: 'Erro ao consultar pergunta/resposta!' })
     }
 });
 
-module.exports = app => app.use('/question_Answer', router);
+module.exports = app => app.use('/QuestionAnswer', router);

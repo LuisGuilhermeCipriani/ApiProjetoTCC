@@ -6,13 +6,13 @@ const router = express.Router();
 
 router.post('/register', async (req, res) => {
     try {
-        const { name, code, idUser } = req.body;
+        const { title, code } = req.body;
 
         if(await Discipline.findOne({ code })) {
             return res.status(400).send({ error: 'Disciplina já existente!' });
         }
 
-        const discipline = await Discipline.create({ name, code, idUser });
+        const discipline = await Discipline.create({ title, code });
 
         await discipline.save();
         return res.status(201).send({ discipline });
@@ -23,12 +23,22 @@ router.post('/register', async (req, res) => {
 
 router.get('/findAll', async (req, res) => {
     try {
-        const { idUser } = req.body;
-        const disciplines = await Discipline.find({ idUser }).populate('idUser');
+        const disciplines = await Discipline.find({ }).populate('idUser');
 
         return res.send({ disciplines });
     } catch (err) {
         res.status(400).send({ error: 'Erro ao consultar disciplina!' })
+    }
+});
+
+router.get('/:idDiscipline', async (req, res) => {
+    try {
+        const { idDiscipline } = req.params;
+        const disciplines = await Discipline.findById({ _id:idDiscipline })
+
+        return res.send(disciplines);
+    } catch (err) {
+        res.status(400).send({ error: 'Erro ao consultar disciplinas!' })
     }
 });
 

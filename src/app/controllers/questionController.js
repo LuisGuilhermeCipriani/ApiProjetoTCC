@@ -31,4 +31,14 @@ router.get('/findAll', async (req, res) => {
     }
 });
 
+router.get('/findAll', async (req, res) => {
+    try {
+        const users = await User.find({ }).populate('idUser');
+
+        return res.send({ users });
+    } catch (err) {
+        res.status(400).send({ error: 'Erro ao consultar usuários!' })
+    }
+});
+
 module.exports = app => app.use('/question', router);

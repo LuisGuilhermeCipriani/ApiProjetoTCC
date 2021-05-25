@@ -5,11 +5,6 @@ const QuestionSchema = new mongoose.Schema({
         type: String,
         require: true,
     },
-    quiz: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Quiz',
-        require: true
-    },
     createdAt: {
         type: Date,
         default: Date.now

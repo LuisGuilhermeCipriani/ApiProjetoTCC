@@ -6,9 +6,9 @@ const router = express.Router();
 
 router.post('/register', async (req, res) => {
     try {
-        const { title } = req.body;
+        const { title, option } = req.body;
 
-        if(await Answer.findOne({ title })) {
+        if(await Answer.findOne({ title, option })) {
             return res.status(400).send({ error: 'Resposta já existente!' });
         }
 

@@ -1,45 +1,54 @@
 const express = require('express');
 
-const User = require('../models/user');
-const Discipline = require('../models/discipline');
-const Question_Answer = require('../models/question_answer');
+const DisciplineUser = require('../models/disciplineUser');
+const QuestionAnswer = require('../models/questionAnswer');
 const Quiz = require('../models/quiz');
 
 const router = express.Router();
 
 router.post('/register', async (req, res) => {
     try {
-        const { idUser, idDiscipline, question_answer } = req.body;
+        const { disciplineUser, questionAnswer, status } = req.body;
 
-        console.log(question_answer)
-
-        if(await Quiz.findOne({ idUser, idDiscipline })) {
+        if(await Quiz.findOne({ disciplineUser, status })) {
             return res.status(400).send({ error: 'Questionário já existente!' });
         }
 
-        const quiz = await Quiz.create({ idUser, idDiscipline });
+        const quiz = await Quiz.create({ disciplineUser, status });
 
-        await Promise.all(question_answer.map(async question_answer => {
-            const quizQuestionAnswer = new Question_Answer({ ...question_answer, quiz: quiz._id });
-            await quizQuestionAnswer.save();
-            quiz.question_answer.push(quizQuestionAnswer);
+        await Promise.all(questionAnswer.map(async questionAnswer => {
+            const resQuestionAnswer = new QuestionAnswer({ ...questionAnswer, quiz: quiz._id });
+            await resQuestionAnswer.save();
+            quiz.questionAnswer.push(resQuestionAnswer);
         }));
 
         await quiz.save();
         return res.status(201).send({ quiz });
     } catch (err) {
-        res.status(400).send({ error: 'Erro ao registrar Questionário!' + err })
+        res.status(400).send({ error: 'Erro ao registrar questionário!' + err })
     }
 });
 
-router.get('/findAll', async (req, res) => {
+router.post('/findAll', async (req, res) => {
     try {
-        const { idUser } = req.body;
-        const quizzes = await Quiz.find({ idUser }).populate(['idUser', 'idDiscipline', 'question_answer']);
+        const { idUser, status } = req.body;
+        const disciplineUser = await DisciplineUser.findOne({ idUser });
+        const quizzes = await Quiz.findOne({ disciplineUser, status }).populate(['questionAnswer', 'disciplineUser']);
 
         return res.send({ quizzes });
     } catch (err) {
-        res.status(400).send({ error: 'Erro ao consultar Questionário!' })
+        res.status(400).send({ error: 'Erro ao consultar questionário!' })
+    }
+});
+
+router.post('/findByIdDisciplineUser', async (req, res) => {
+    try {
+        const { disciplineUser, status } = req.body;
+        const quizzes = await Quiz.findOne({ disciplineUser, status }).populate(['questionAnswer', 'disciplineUser']);
+
+        return res.send({ quizzes });
+    } catch (err) {
+        res.status(400).send({ error: 'Erro ao consultar questionário!' })
     }
 });
 

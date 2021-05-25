@@ -1,14 +1,9 @@
 const mongoose = require('mongoose');
 
 const DisciplineSchema = new mongoose.Schema({
-    name: {
+    title: {
         type: String,
         require: true,
-    },
-    idUser: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        require: true
     },
     code: {
         type: String,

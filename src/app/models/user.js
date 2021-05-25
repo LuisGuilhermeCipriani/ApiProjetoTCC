@@ -6,23 +6,15 @@ const UserSchema = new mongoose.Schema({
         type: String,
         require: true,
     },
-
     password: {
         type: String,
         required: true,
         select: false,
     },
-
-    /*passwordResetToken: {
+    name: {
         type: String,
-        required: true,
-        select: false
-    },*/
-
-    /*passwordResetExpires: {
-        type: Date,
-        select: false
-    }*/
+        require: true,
+    }
 });
 
 UserSchema.pre('save', async function(next) {
