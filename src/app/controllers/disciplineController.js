@@ -31,9 +31,9 @@ router.get('/findAll', async (req, res) => {
     }
 });
 
-router.get('/:idDiscipline', async (req, res) => {
+router.post('/findById', async (req, res) => {
     try {
-        const { idDiscipline } = req.params;
+        const { idDiscipline } = req.body;
         const disciplines = await Discipline.findById({ _id:idDiscipline })
 
         return res.send(disciplines);

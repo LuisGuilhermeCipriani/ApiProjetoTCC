@@ -6,13 +6,13 @@ const router = express.Router();
 
 router.post('/register', async (req, res) => {
     try {
-        const { title } = req.body;
+        const { title, option } = req.body;
 
         if(await Question.findOne({ title })) {
             return res.status(400).send({ error: 'Pergunta já existente!' });
         }
 
-        const question = await Question.create({ title });
+        const question = await Question.create({ title, option });
 
         await question.save();
         return res.status(201).send({ question });
@@ -28,16 +28,6 @@ router.get('/findAll', async (req, res) => {
         return res.send({ questions });
     } catch (err) {
         res.status(400).send({ error: 'Erro ao consultar pergunta!' })
-    }
-});
-
-router.get('/findAll', async (req, res) => {
-    try {
-        const users = await User.find({ }).populate('idUser');
-
-        return res.send({ users });
-    } catch (err) {
-        res.status(400).send({ error: 'Erro ao consultar usuários!' })
     }
 });
 

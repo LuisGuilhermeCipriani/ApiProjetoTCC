@@ -12,7 +12,7 @@ router.post('/register', async (req, res) => {
             return res.status(400).send({ error: 'Resposta já existente!' });
         }
 
-        const answer = await Answer.create({ title });
+        const answer = await Answer.create({ title, option });
 
         await answer.save();
         return res.status(201).send({ answer });

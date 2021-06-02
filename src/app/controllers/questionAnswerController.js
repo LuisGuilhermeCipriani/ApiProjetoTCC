@@ -8,13 +8,14 @@ const router = express.Router();
 
 router.post('/register', async (req, res) => {
     try {
-        const { idQuestion, idAnswer, idDiscipline, idUser } = req.body;
+        const { idQuestion, idAnswer} = req.body;
 
-        if(await QuestionAnswer.findOne({ idQuestion, idAnswer, idDiscipline, idUser })) {
-            return res.status(400).send({ error: 'Pergunta/Resposta já existente!' });
+        const objectQuestionAnswer = await QuestionAnswer.findOne({ idQuestion, idAnswer })
+        if(objectQuestionAnswer) {
+            return res.status(201).send({ objectQuestionAnswer });
         }
 
-        const questionAnswer = await QuestionAnswer.create({ idQuestion, idAnswer, idDiscipline, idUser });
+        const questionAnswer = await QuestionAnswer.create({ idQuestion, idAnswer });
 
         await questionAnswer.save();
         return res.status(201).send({ questionAnswer });
@@ -33,4 +34,4 @@ router.get('/findAll', async (req, res) => {
     }
 });
 
-module.exports = app => app.use('/QuestionAnswer', router);
+module.exports = app => app.use('/questionAnswer', router);

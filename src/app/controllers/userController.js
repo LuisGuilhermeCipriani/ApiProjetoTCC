@@ -48,4 +48,15 @@ router.get('/findAll', async (req, res) => {
     }
 });
 
-module.exports = app => app.use('/auth', router);
+router.get('/findByType', async (req, res) => {
+    try {
+        const {type} = req.body;
+        const users = await User.find({type});
+
+        return res.send({ users });
+    } catch (err) {
+        res.status(400).send({ error: 'Erro ao consultar usuários!' })
+    }
+});
+
+module.exports = app => app.use('/user', router);

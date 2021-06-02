@@ -5,6 +5,10 @@ const QuestionSchema = new mongoose.Schema({
         type: String,
         require: true,
     },
+    option: {
+        type: Number,
+        required: true,
+    },
     createdAt: {
         type: Date,
         default: Date.now
