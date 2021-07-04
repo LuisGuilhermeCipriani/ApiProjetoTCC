@@ -24,6 +24,11 @@ const questionnaireSchema = mongoose.Schema({
         ref: 'User',
         required: true,
     },
+    idClass: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Class',
+        required: true,
+    },
     createdAt: {
         type: Date,
         default: Date.now

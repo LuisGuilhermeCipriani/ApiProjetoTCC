@@ -1,7 +1,4 @@
 const express = require('express');
-
-const Question = require('../models/question');
-const Answer = require('../models/answer');
 const QuestionAnswer = require('../models/questionAnswer');
 
 const router = express.Router();
@@ -27,6 +24,17 @@ router.post('/register', async (req, res) => {
 router.get('/findAll', async (req, res) => {
     try {
         const questionAnswer = await QuestionAnswer.find();
+
+        return res.send({ questionAnswer });
+    } catch (err) {
+        res.status(400).send({ error: 'Erro ao consultar pergunta/resposta!' })
+    }
+});
+
+router.post('/findById', async (req, res) => {
+    try {
+        const { idQuestionnaire } = req.body;
+        const questionAnswer = await QuestionAnswer.find({idQuestionnaire});
 
         return res.send({ questionAnswer });
     } catch (err) {

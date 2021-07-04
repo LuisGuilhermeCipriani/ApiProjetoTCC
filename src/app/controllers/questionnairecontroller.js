@@ -2,21 +2,25 @@ const express = require('express');
 
 const QuestionAnswer = require('../models/questionAnswer');
 const Questionnaire = require('../models/questionnaire');
+const Class = require('../models/class');
+const Question = require('../models/question');
 
 const router = express.Router();
 
 router.post('/register', async (req, res) => {
     try {
-        const { questionAnswer, status, idDiscipline, idStudent, idProfessor } = req.body;
+        const { status, idDiscipline, idStudent, idProfessor, idClass } = req.body;
 
-        if(await Questionnaire.findOne({ status, idDiscipline, idStudent, idProfessor })) {
+        if(await Questionnaire.findOne({ status, idDiscipline, idStudent, idProfessor, idClass })) {
             return res.status(400).send({ error: 'Questionário já existente!' });
         }
 
-        const questionnaire = await Questionnaire.create({ status, idDiscipline, idStudent, idProfessor });
+        const questionnaire = await Questionnaire.create({ status, idDiscipline, idStudent, idProfessor, idClass });
 
-        await Promise.all(questionAnswer.map(async questionAnswer => {
-            const resQuestionAnswer = new QuestionAnswer({ ...questionAnswer, idQuestionnaire: questionnaire._id });
+        const questions = await Question.find();
+
+        await Promise.all(questions.map(async idQuestion => {
+            const resQuestionAnswer = new QuestionAnswer({ idQuestion: idQuestion._id, idQuestionnaire: questionnaire._id });
             await resQuestionAnswer.save();
             questionnaire.questionAnswer.push(resQuestionAnswer);
         }));
@@ -71,5 +75,27 @@ router.post('/findByIdDisciplineUser', async (req, res) => {
         res.status(400).send({ error: 'Erro ao consultar questionário!' })
     }
 });
+
+router.post('/findByIdProfessor', async (req, res) => {
+    try{
+        const { idProfessor, period } = req.body;
+        const classList = await Class.find({idProfessor, period})
+        
+        const list = await Promise.all(classList.map(async object => {
+            const questionnaire = await Questionnaire.find({idClass: object._id, status: 'S'})
+            .populate(['questionAnswer', 'idDiscipline', 'idStudent', 'idProfessor', 'idClass'])
+
+            if(questionnaire.length > 0) {
+                return questionnaire;
+            }
+        }))
+
+        const filteredList = list.filter(object => object != null)
+
+        return res.send({questionnaires: filteredList});
+    } catch (err) {
+        res.status(400).send({ error: 'Erro ao consultar questionários!'})
+    }
+})
 
 module.exports = app => app.use('/questionnaire', router);

@@ -1,6 +1,8 @@
 const express = require('express');
 
 const Discipline = require('../models/discipline');
+const Class = require('../models/class');
+const User = require('../models/user');
 
 const router = express.Router();
 
@@ -37,6 +39,26 @@ router.post('/findById', async (req, res) => {
         const disciplines = await Discipline.findById({ _id:idDiscipline })
 
         return res.send(disciplines);
+    } catch (err) {
+        res.status(400).send({ error: 'Erro ao consultar disciplinas!' })
+    }
+});
+
+router.post('/findByIdUser', async (req, res) => {
+    try {
+        const { idUser, period } = req.body;
+        let classes;
+        const user = await User.findById({_id: idUser});
+        if(user.type === 'P') {
+            classes = await Class.find({ idProfessor: idUser, period });
+        } else if(user.type === 'S') {
+            classes = await Class.find({period, students: {_id: idUser}})
+        }
+        const disciplines = await Promise.all(classes.map(async object => {
+            const discipline = await Discipline.findById({_id: object.idDiscipline});
+            return discipline;
+        }))
+        return res.send({disciplines});
     } catch (err) {
         res.status(400).send({ error: 'Erro ao consultar disciplinas!' })
     }

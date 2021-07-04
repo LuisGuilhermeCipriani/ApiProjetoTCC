@@ -8,8 +8,7 @@ const QuestionAnswerSchema = new mongoose.Schema({
     },
     idAnswer: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Answer',
-        require: true
+        ref: 'Answer'
     },
     idQuestionnaire: {
         type: mongoose.Schema.Types.ObjectId,
