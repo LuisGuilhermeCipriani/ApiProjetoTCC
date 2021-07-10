@@ -1,6 +1,7 @@
 const express = require('express');
 
 const Class = require('../models/class');
+const User = require('../models/user');
 
 const router = express.Router();
 
@@ -37,6 +38,23 @@ router.post('/findById', async (req, res) => {
         const classes = await Class.findById({ _id:idClass })
 
         return res.send(classes);
+    } catch (err) {
+        res.status(400).send({ error: 'Erro ao consultar turmas!' })
+    }
+});
+
+router.post('/findByIdUser', async (req, res) => {
+    try {
+        const { idUser, period } = req.body;
+        let classes;
+        const user = await User.findById({ _id: idUser });
+        if (user.type === 'P') {
+            classes = await Class.find({ idProfessor: idUser, period }).populate('idDiscipline');
+        } else if (user.type === 'S') {
+            classes = await Class.find({ students: { _id: idUser }, period }).populate('idDiscipline')
+        }
+
+        return res.send({ classes });
     } catch (err) {
         res.status(400).send({ error: 'Erro ao consultar turmas!' })
     }
