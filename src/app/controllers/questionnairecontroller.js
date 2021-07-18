@@ -56,8 +56,8 @@ router.post('/findAll', async (req, res) => {
 
 router.post('/findAllByPeriod', async (req, res) => {
     try {
-        const { idStudent, period, status } = req.body;
-        const questionnaires = await Questionnaire.find({ idStudent, status })
+        const { idStudent, period } = req.body;
+        const questionnaires = await Questionnaire.find({ idStudent, $or:[ {'status':'N'}, {'status':'I'} ]})
         .populate(["idDiscipline", "idProfessor", "idStudent", "idClass", "questionAnswer"])
         const questionnairesByPeriod = await questionnaires.filter(async object => (
             await Class.findOne({_id: object.idClass, period})
@@ -71,8 +71,8 @@ router.post('/findAllByPeriod', async (req, res) => {
 
 router.put('/update', async (req, res) => {
     try {
-        const { idQuestionnaire, questionAnswer } = req.body;
-        const object = await Questionnaire.findByIdAndUpdate( idQuestionnaire, {status: 'S'}, { new: true });
+        const { idQuestionnaire, questionAnswer, commentary, status } = req.body;
+        const object = await Questionnaire.findByIdAndUpdate( idQuestionnaire, {status, commentary}, { new: true });
 
         object.questionAnswer = [];
         await QuestionAnswer.remove({ idQuestionnaire: idQuestionnaire });
@@ -86,7 +86,7 @@ router.put('/update', async (req, res) => {
         await object.save();
         return res.status(201).send({ questionnaire: object });
     } catch (err) {
-        res.status(400).send({ error: 'Erro ao atualizar questionario!' + err })
+        res.status(400).send({ error: 'Erro ao atualizar questionario! ' + err })
     }
 });
 

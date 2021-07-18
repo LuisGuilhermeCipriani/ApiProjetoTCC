@@ -29,6 +29,10 @@ const questionnaireSchema = mongoose.Schema({
         ref: 'Class',
         required: true,
     },
+    commentary: {
+        type: String,
+        default: ''
+    },
     createdAt: {
         type: Date,
         default: Date.now
