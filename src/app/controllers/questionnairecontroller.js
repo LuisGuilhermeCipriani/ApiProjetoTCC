@@ -54,6 +54,21 @@ router.post('/findAll', async (req, res) => {
     }
 });
 
+router.post('/findAllByPeriodFinished', async (req, res) => {
+    try {
+        const { idStudent, period } = req.body;
+        const questionnaires = await Questionnaire.find({ idStudent, status: 'S'})
+        .populate(["idDiscipline", "idProfessor", "idStudent", "idClass", "questionAnswer"])
+        const questionnairesByPeriod = await questionnaires.filter(async object => (
+            await Class.findOne({_id: object.idClass, period})
+        ))
+
+        return res.send({ questionnairesByPeriod });
+    } catch (err) {
+        res.status(400).send({ error: 'Erro ao consultar questionário!' })
+    }
+});
+
 router.post('/findAllByPeriod', async (req, res) => {
     try {
         const { idStudent, period } = req.body;
