@@ -36,6 +36,15 @@ const questionnaireSchema = mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    startDate: {
+        type: Date,
+    },
+    finalDate: {
+        type: Date,
+    },
+    updateDate: {
+        type: Date,
     }
 })
 

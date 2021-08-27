@@ -9,13 +9,13 @@ const router = express.Router();
 
 router.post('/register', async (req, res) => {
     try {
-        const { status, idDiscipline, idStudent, idProfessor, idClass } = req.body;
+        const { status, idDiscipline, idStudent, idProfessor, idClass, startDate, finalDate } = req.body;
 
-        if(await Questionnaire.findOne({ status, idDiscipline, idStudent, idProfessor, idClass })) {
+        if (await Questionnaire.findOne({ status, idDiscipline, idStudent, idProfessor, idClass })) {
             return res.status(400).send({ error: 'Questionário já existente!' });
         }
 
-        const questionnaire = await Questionnaire.create({ status, idDiscipline, idStudent, idProfessor, idClass });
+        const questionnaire = await Questionnaire.create({ status, idDiscipline, idStudent, idProfessor, idClass, startDate, finalDate });
 
         const questions = await Question.find();
 
@@ -56,11 +56,11 @@ router.post('/findAll', async (req, res) => {
 
 router.post('/findAllByPeriodFinished', async (req, res) => {
     try {
-        const { idStudent, period } = req.body;
-        const questionnaires = await Questionnaire.find({ idStudent, status: 'S'})
-        .populate(["idDiscipline", "idProfessor", "idStudent", "idClass", "questionAnswer"])
+        const { idStudent } = req.body;
+        const questionnaires = await Questionnaire.find({ idStudent, status: 'S' })
+            .populate(["idDiscipline", "idProfessor", "idStudent", "idClass", "questionAnswer"])
         const questionnairesByPeriod = await questionnaires.filter(async object => (
-            await Class.findOne({_id: object.idClass, period})
+            await Class.findOne({ _id: object.idClass, period: object.period })
         ))
 
         return res.send({ questionnairesByPeriod });
@@ -71,23 +71,28 @@ router.post('/findAllByPeriodFinished', async (req, res) => {
 
 router.post('/findAllByPeriod', async (req, res) => {
     try {
-        const { idStudent, period } = req.body;
-        const questionnaires = await Questionnaire.find({ idStudent, $or:[ {'status':'N'}, {'status':'I'} ]})
-        .populate(["idDiscipline", "idProfessor", "idStudent", "idClass", "questionAnswer"])
+        const { idStudent } = req.body;
+        const questionnaires = await Questionnaire.find({
+            idStudent, $or: [{ 'status': 'N' }, { 'status': 'I' }],
+            'startDate': { '$lte': new Date() }, 'finalDate': { '$gte': new Date() }
+        })
+            .populate(["idDiscipline", "idProfessor", "idStudent", "idClass", "questionAnswer"])
+
         const questionnairesByPeriod = await questionnaires.filter(async object => (
-            await Class.findOne({_id: object.idClass, period})
+            await Class.findOne({ _id: object.idClass })
         ))
 
         return res.send({ questionnairesByPeriod });
     } catch (err) {
-        res.status(400).send({ error: 'Erro ao consultar questionário!' })
+        res.status(400).send({ error: 'Erro ao consultar questionário! ' + err })
     }
 });
 
 router.put('/update', async (req, res) => {
     try {
         const { idQuestionnaire, questionAnswer, commentary, status } = req.body;
-        const object = await Questionnaire.findByIdAndUpdate( idQuestionnaire, {status, commentary}, { new: true });
+        const updateDate = Date.now;
+        const object = await Questionnaire.findByIdAndUpdate(idQuestionnaire, { status, commentary, updateDate }, { new: true });
 
         object.questionAnswer = [];
         await QuestionAnswer.remove({ idQuestionnaire: idQuestionnaire });
@@ -118,24 +123,24 @@ router.post('/findByIdDisciplineUser', async (req, res) => {
 });
 
 router.post('/findByIdProfessor', async (req, res) => {
-    try{
+    try {
         const { idProfessor, period } = req.body;
-        const classList = await Class.find({idProfessor, period})
-        
-        const list = await Promise.all(classList.map(async object => {
-            const questionnaire = await Questionnaire.find({idClass: object._id, status: 'S'})
-            .populate(['questionAnswer', 'idDiscipline', 'idStudent', 'idProfessor', 'idClass'])
+        const classList = await Class.find({ idProfessor, period })
 
-            if(questionnaire.length > 0) {
+        const list = await Promise.all(classList.map(async object => {
+            const questionnaire = await Questionnaire.find({ idClass: object._id, status: 'S' })
+                .populate(['questionAnswer', 'idDiscipline', 'idStudent', 'idProfessor', 'idClass'])
+
+            if (questionnaire.length > 0) {
                 return questionnaire;
             }
         }))
 
         const filteredList = list.filter(object => object != null)
 
-        return res.send({questionnaires: filteredList});
+        return res.send({ questionnaires: filteredList });
     } catch (err) {
-        res.status(400).send({ error: 'Erro ao consultar questionários!'})
+        res.status(400).send({ error: 'Erro ao consultar questionários!' })
     }
 });
 
