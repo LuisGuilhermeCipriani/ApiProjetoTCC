@@ -91,8 +91,7 @@ router.post('/findAllByPeriod', async (req, res) => {
 router.put('/update', async (req, res) => {
     try {
         const { idQuestionnaire, questionAnswer, commentary, status } = req.body;
-        const updateDate = Date.now;
-        const object = await Questionnaire.findByIdAndUpdate(idQuestionnaire, { status, commentary, updateDate }, { new: true });
+        const object = await Questionnaire.findByIdAndUpdate(idQuestionnaire, { status, commentary }, { new: true });
 
         object.questionAnswer = [];
         await QuestionAnswer.remove({ idQuestionnaire: idQuestionnaire });
