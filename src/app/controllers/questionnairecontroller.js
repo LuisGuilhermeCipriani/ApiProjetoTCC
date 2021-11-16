@@ -123,8 +123,8 @@ router.post('/findByIdDisciplineUser', async (req, res) => {
 
 router.post('/findByIdProfessor', async (req, res) => {
     try {
-        const { idProfessor, period } = req.body;
-        const classList = await Class.find({ idProfessor, period })
+        const { idProfessor, active } = req.body;
+        const classList = await Class.find({ idProfessor, active })
 
         const list = await Promise.all(classList.map(async object => {
             const questionnaire = await Questionnaire.find({ idClass: object._id, status: 'S' })

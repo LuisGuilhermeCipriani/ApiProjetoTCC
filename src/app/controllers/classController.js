@@ -45,13 +45,13 @@ router.post('/findById', async (req, res) => {
 
 router.post('/findByIdUser', async (req, res) => {
     try {
-        const { idUser, period } = req.body;
+        const { idUser, active } = req.body;
         let classes;
         const user = await User.findById({ _id: idUser });
         if (user.type === 'P') {
-            classes = await Class.find({ idProfessor: idUser, period }).populate('idDiscipline');
+            classes = await Class.find({ idProfessor: idUser, active }).populate('idDiscipline');
         } else if (user.type === 'S') {
-            classes = await Class.find({ students: { _id: idUser }, period }).populate('idDiscipline')
+            classes = await Class.find({ students: { _id: idUser }, active }).populate('idDiscipline')
         }
 
         return res.send({ classes });
