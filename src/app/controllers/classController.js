@@ -49,9 +49,9 @@ router.post('/findByIdUser', async (req, res) => {
         let classes;
         const user = await User.findById({ _id: idUser });
         if (user.type === 'P') {
-            classes = await Class.find({ idProfessor: idUser, active }).populate('idDiscipline');
+            classes = await Class.find({ idProfessor: idUser, active }).populate(['idDiscipline', 'idProfessor']);
         } else if (user.type === 'S') {
-            classes = await Class.find({ students: { _id: idUser }, active }).populate('idDiscipline')
+            classes = await Class.find({ students: { _id: idUser }, active }).populate(['idDiscipline', 'idProfessor'])
         }
 
         return res.send({ classes });
